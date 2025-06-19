@@ -4,6 +4,5 @@ pytest
 black
 aiosqlite
 telethon
-tgcalls==0.0.16
 pytgcalls==0.0.24
 ffmpeg-python

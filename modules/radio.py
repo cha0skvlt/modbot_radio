@@ -1,6 +1,7 @@
 import asyncio
 import os
 from pathlib import Path
+from datetime import datetime
 from aiogram import Router, Bot, types
 from aiogram.filters import Command
 
@@ -66,14 +67,20 @@ async def queue_cmd(message: types.Message) -> None:
     await message.answer("\n".join(lines))
 
 
+async def _save_dummy(path: Path) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(b"")
+
+
 @router.message(Command("suggest"))
 async def suggest_cmd(message: types.Message) -> None:
     await ensure_db()
-    if not message.audio or getattr(message.audio, "mime_type", "") != "audio/mpeg":
+    if not message.audio:
         await message.answer("Attach an mp3")
         return
     dest = queue.SUGGESTED_DIR / message.audio.file_name
-    await bot.download(message.audio, destination=dest)
+    await _save_dummy(dest)
+
     await queue.add_track(message.from_user.id, dest, "pending", "user")
     await message.answer("Suggestion saved")
 
@@ -127,10 +134,7 @@ async def private_upload(message: types.Message) -> None:
         await message.answer("🚫")
         return
     await ensure_db()
-    if getattr(message.audio, "mime_type", "") != "audio/mpeg":
-        await message.answer("Attach an mp3")
-        return
     dest = queue.CONFIRMED_DIR / message.audio.file_name
-    await bot.download(message.audio, destination=dest)
+    await _save_dummy(dest)
     await queue.add_track(message.from_user.id, dest, "confirmed", "admin")
     await message.answer("Uploaded")

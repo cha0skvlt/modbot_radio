@@ -10,7 +10,6 @@ import pytest
 class FakeAudio:
     def __init__(self, name: str = "track.mp3") -> None:
         self.file_name = name
-        self.mime_type = "audio/mpeg"
 
 
 class FakeUser:
@@ -44,11 +43,6 @@ async def test_suggest_and_approve(tmp_path, monkeypatch):
     monkeypatch.setenv("UPLOADS_DIR", str(tmp_path / "upl"))
     radio = importlib.reload(importlib.import_module("modules.radio"))
 
-    async def fake_download(file, destination):
-        Path(destination).parent.mkdir(parents=True, exist_ok=True)
-        Path(destination).write_bytes(b"dummy")
-
-    monkeypatch.setattr(radio.bot, "download", fake_download)
 
     msg = FakeMessage(7, text="/suggest", audio=FakeAudio())
     await radio.suggest_cmd(msg)

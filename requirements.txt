@@ -2,3 +2,7 @@ aiogram==3.4.1
 python-dotenv
 pytest
 black
+aiosqlite
+telethon
+pytgcalls
+ffmpeg-python

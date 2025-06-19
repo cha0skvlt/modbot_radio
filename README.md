@@ -1,138 +1,81 @@
-# 🤖 MODBOT — Modular Telegram Bot Framework v.1.0
+# 🎧 modbot.modules.radio
 
-A minimalistic, production-ready Telegram bot skeleton using **aiogram 3**.
+## 📌 Purpose
 
----
-
-## 🔒 License
-
-This is a **closed, proprietary project**.  
-All rights reserved. Unauthorized use is strictly prohibited.  
-See [LICENSE](./LICENSE) for details.
-
----
-## 📌 Goal
-
-Create a modular bot architecture:
-
-- `bot.py` — single entrypoint, loads everything
-- `modules/` — feature plugins (auto-loaded)
-- `.env` — all config in one file (no hardcoded secrets)
-- `/start` — the only built-in command, with uptime and loaded modules
+Radio module for `modbot`. Plays 24/7 music in Telegram voice chat via userbot.  
+Only OWNER and admins can upload tracks. Others can suggest via `/suggest`.
 
 ---
 
-## 🧠 Features
+## 🔧 Features
 
-- 🧩 Modular design — logic lives in `modules/`, not in `bot.py`
-- 🔁 Auto-loads all `*.py` files from `modules/`
-- 🔐 Owner-only access — `/start` replies only to the OWNER_ID
-- ✅ Built-in tests
-- 🧪 GitHub Actions CI: `pytest` + `black`
-
----
-
-## 🛠 Technologies
-
-![Chaos-Tested](https://img.shields.io/badge/Chaos--Tested-red?style=flat-square)
-![Python](https://img.shields.io/badge/Python-3.12-blue?logo=python)
-![Aiogram](https://img.shields.io/badge/aiogram-3.4.x-lightgrey)
-![black](https://img.shields.io/badge/code%20style-black-black?style=flat-square)
-![pytest](https://img.shields.io/badge/tests-pytest-green?style=flat-square)
-![CI](https://img.shields.io/github/actions/workflow/status/cha0skvlt/modbot/ci.yml?label=CI&style=flat-square)
+- Stream audio from `uploads/confirmed/*` using PyTgCalls
+- Accept private uploads from OWNER/admins
+- Non-admin users can suggest tracks (pending review)
+- Commands:
+  - `/join` — join voice chat
+  - `/play` — start playing loop
+  - `/skip` — skip current track (admin only)
+  - `/stop` — stop playback
+  - `/queue` — show upcoming tracks
+  - `/suggest` — suggest track to admins
+  - `/approve <id>` / `/reject <id>` — review suggestions
 
 ---
 
-## 🚀 Usage
+## 📂 Structure
 
-### 1. Clone & configure
-
-```bash
-git clone https://github.com/cha0skvlt/modbot
-cd modbot
-cp .env.example .env
-```
-
-Edit `.env`:
-
-```dotenv
-BOT_TOKEN=123456:ABCDEF...
-OWNER_ID=123456789
-```
-
-### 2. Install dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Run
-
-```bash
-python bot.py
+```text
+modules/
+├── radio.py            # Command interface
+├── radio_core/
+│   ├── player.py       # Stream control (loop, skip, ffmpeg)
+│   └── queue.py        # Track queue from SQLite
+uploads/
+├── confirmed/          # Tracks accepted to stream
+└── suggested/          # Pending tracks (user suggestions)
 ```
 
 ---
 
-## ✅ Included commands
+## 🗃️ Database schema (aiosqlite)
 
-- `/start` → status + uptime (owner-only)
+`tracks` table:
 
----
-
-## 🧪 Tests
-
-Run tests with:
-
-```bash
-pytest
-```
-
----
-
-## 🔄 Module structure
-
-Any file inside `modules/` with a `router` object is auto-loaded:
-
-```python
-# modules/hello.py
-from aiogram import Router
-router = Router()
-
-@router.message()
-async def hi(msg): await msg.answer("Hi!")
-```
+| Column     | Type     | Description                    |
+|------------|----------|--------------------------------|
+| id         | INTEGER  | Autoincrement                  |
+| user_id    | INTEGER  | Telegram ID                    |
+| path       | TEXT     | File path                      |
+| status     | TEXT     | 'confirmed' / 'pending' / 'rejected' |
+| added_by   | TEXT     | 'admin' / 'user'               |
+| timestamp  | TEXT     | ISO datetime                   |
 
 ---
 
-## 🧱 Example `.env`
+## 🚀 Requirements
 
-```dotenv
-BOT_TOKEN=123456789:ABCDEF...
-OWNER_ID=123456789
-```
+- `telethon` — userbot client
+- `pytgcalls` — stream engine
+- `ffmpeg-python` — audio processing
+- `aiosqlite` — track storage
+- `aiogram` — bot interface
 
----
-
-## 🧼 Linting
-
-We enforce `black` code style.
-
-Run formatter:
-
-```bash
-black .
-```
+All listed in `requirements.txt`
 
 ---
 
-## 📦 Coming Soon
+## 🧠 Notes
 
-- Dockerfile + Compose
-- Healthcheck endpoint
-- Live module reload
+- Stream runs via `userbot`, requires valid session file
+- Tracks must be short and safe (max duration, size limits)
+- Only confirmed tracks are looped in stream
+- Suggestions require manual approval
 
 ---
 
-Made  by [cha0skvlt]
+## ✅ Status
+
+> MVP stage. Supports full radio cycle + suggestion flow.
+
 

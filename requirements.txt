@@ -6,3 +6,4 @@ aiosqlite
 telethon
 git+https://github.com/pytgcalls/pytgcalls@master
 ffmpeg-python
+pytest-asyncio

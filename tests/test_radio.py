@@ -43,6 +43,7 @@ async def test_suggest_and_approve(tmp_path, monkeypatch):
     monkeypatch.setenv("UPLOADS_DIR", str(tmp_path / "upl"))
     radio = importlib.reload(importlib.import_module("modules.radio"))
 
+
     msg = FakeMessage(7, text="/suggest", audio=FakeAudio())
     await radio.suggest_cmd(msg)
     assert any("saved" in a.lower() for a in msg.answers)

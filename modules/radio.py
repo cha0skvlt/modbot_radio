@@ -80,6 +80,7 @@ async def suggest_cmd(message: types.Message) -> None:
         return
     dest = queue.SUGGESTED_DIR / message.audio.file_name
     await _save_dummy(dest)
+
     await queue.add_track(message.from_user.id, dest, "pending", "user")
     await message.answer("Suggestion saved")
 

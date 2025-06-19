@@ -4,5 +4,5 @@ pytest
 black
 aiosqlite
 telethon
-pytgcalls==0.0.24
+git+https://github.com/pytgcalls/pytgcalls@master
 ffmpeg-python
